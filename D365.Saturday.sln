@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.329
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D365.Saturday.DataProvider", "src\D365.Saturday.DataProvider\D365.Saturday.DataProvider.csproj", "{A43E5F22-03D2-4F5A-8B20-72339EEA955B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A43E5F22-03D2-4F5A-8B20-72339EEA955B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A43E5F22-03D2-4F5A-8B20-72339EEA955B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A43E5F22-03D2-4F5A-8B20-72339EEA955B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A43E5F22-03D2-4F5A-8B20-72339EEA955B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2EA61DD5-1FD7-4BDC-A455-686326AB879C}
+	EndGlobalSection
+EndGlobal

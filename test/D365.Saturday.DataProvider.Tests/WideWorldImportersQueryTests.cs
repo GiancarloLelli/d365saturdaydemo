@@ -10,8 +10,8 @@ namespace D365.Saturday.DataProvider.Tests
         public void Query_Count_Should_Be_Respected()
         {
             var query = new QueryExpression("sat_account");
-            query.TopCount = 10;
             query.Criteria.AddCondition("sat_preferredname", ConditionOperator.Equal, "Kayla");
+            query.TopCount = 1;
 
             var provider = new WideWorldImportersDataProvider();
             var result = provider.ExecuteWrapper(query);

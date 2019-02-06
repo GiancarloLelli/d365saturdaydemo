@@ -1,47 +1,31 @@
-﻿using D365.Saturday.DataProvider.Data;
-using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Query;
-using System;
+﻿using Microsoft.Xrm.Sdk.Query;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace D365.Saturday.DataProvider
 {
-    public class NorthwindTradersDataProvider : IPlugin
-    {
-        public void Execute(IServiceProvider serviceProvider)
-        {
-            var context = serviceProvider.GetService(typeof(IPluginExecutionContext)) as IPluginExecutionContext;
-            var qe = context.InputParameters["Query"] as QueryExpression;
-
-            if (qe != null)
-            {
-                var visitor = new NorthwindTradersVisitor();
-                qe.Accept(visitor);
-
-                if (visitor.SQLCriteria.Count > 0)
-                {
-                    var repo = new NorthwindRepository("", "");
-                    var task = Task.Run(() => repo.Search(qe.EntityName, visitor.SQLCriteria, visitor.Columns));
-                    context.OutputParameters["BusinessEntityCollection"] = task.Result;
-                }
-            }
-        }
-    }
-
-    public class NorthwindTradersVisitor : QueryExpressionVisitorBase
+    public class WideWorlImportersQueryVisitor : QueryExpressionVisitorBase
     {
         public Dictionary<string, string> SQLCriteria { get; private set; }
 
         public IList<string> Columns { get; private set; }
+
+        public int Count { get; set; }
+
+        public WideWorlImportersQueryVisitor()
+        {
+            SQLCriteria = new Dictionary<string, string>();
+            Columns = new List<string>();
+        }
 
         public override QueryExpression Visit(QueryExpression query)
         {
             var filter = query.Criteria;
             var columns = query.ColumnSet;
 
-            if (columns.AllColumns)
+            Count = query.TopCount.HasValue ? query.TopCount.Value : 5000;
+
+            if (columns.AllColumns || columns.Columns.Count == 0)
             {
                 Columns.Add("*");
             }

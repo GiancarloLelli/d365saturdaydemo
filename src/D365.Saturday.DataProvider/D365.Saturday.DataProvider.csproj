@@ -58,9 +58,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\NorthwindRepository.cs" />
-    <Compile Include="NorthwindTradersDataProvider.cs" />
+    <Compile Include="Data\WideWorldImportersRepository.cs" />
+    <Compile Include="WideWorldImportersDataProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WideWorlImportersQueryVisitor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

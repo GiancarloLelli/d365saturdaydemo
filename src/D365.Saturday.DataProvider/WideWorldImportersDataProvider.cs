@@ -43,12 +43,9 @@ namespace D365.Saturday.DataProvider
                 var visitor = new WideWorlImportersQueryVisitor();
                 qe.Accept(visitor);
 
-                if (visitor.SQLCriteria.Count > 0)
-                {
-                    var repo = new WideWorldImportersRepository(SQL, PUBLISHER);
-                    var task = Task.Run(() => repo.Search(qe.EntityName, visitor.SQLCriteria, visitor.Columns, visitor.Count));
-                    collection = task.Result;
-                }
+                var repo = new WideWorldImportersRepository(SQL, PUBLISHER);
+                var task = repo.Search(qe.EntityName, visitor.SQLCriteria, visitor.Columns, visitor.Count).GetAwaiter().GetResult();
+                collection = task;
             }
 
             return collection;

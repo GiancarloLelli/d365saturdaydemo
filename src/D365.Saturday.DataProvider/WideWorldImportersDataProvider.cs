@@ -14,14 +14,27 @@ namespace D365.Saturday.DataProvider
         public void Execute(IServiceProvider serviceProvider)
         {
             var context = serviceProvider.GetService(typeof(IPluginExecutionContext)) as IPluginExecutionContext;
-            var qe = context.InputParameters["Query"] as QueryExpression;
-            var result = ExecuteLogic(qe);
-            context.OutputParameters["BusinessEntityCollection"] = result;
+            var isRetrieveMultiple = context.MessageName.ToLower().Equals("retrievemultiple");
+
+            if (isRetrieveMultiple)
+            {
+                var qe = context.InputParameters["Query"] as QueryExpression;
+                var collectionResult = RetrieveMultipleLogic(qe);
+                context.OutputParameters["BusinessEntityCollection"] = collectionResult;
+            }
+            else
+            {
+                var entity = context.InputParameters["Target"] as EntityReference;
+                var singleResult = RetrieveLogic(entity.LogicalName, entity.Id);
+                context.OutputParameters["BusinessEntity"] = singleResult;
+            }
         }
 
-        public EntityCollection ExecuteWrapper(QueryExpression mockQuery) => ExecuteLogic(mockQuery);
+        public EntityCollection RetrieveMultipleWrapper(QueryExpression mockQuery) => RetrieveMultipleLogic(mockQuery);
 
-        private EntityCollection ExecuteLogic(QueryExpression qe)
+        public Entity RetrieveWrapper(string logicalName, Guid id) => RetrieveLogic(logicalName, id);
+
+        private EntityCollection RetrieveMultipleLogic(QueryExpression qe)
         {
             var collection = new EntityCollection();
 
@@ -39,6 +52,13 @@ namespace D365.Saturday.DataProvider
             }
 
             return collection;
+        }
+
+        private Entity RetrieveLogic(string logicalName, Guid id)
+        {
+            var repo = new WideWorldImportersRepository(SQL, PUBLISHER);
+            var task = Task.Run(() => repo.GetById(logicalName, id));
+            return task.Result;
         }
     }
 }

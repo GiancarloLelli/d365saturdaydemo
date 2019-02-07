@@ -22,12 +22,15 @@ namespace D365.Saturday.DataProvider.Data
         public async Task<EntityCollection> Search(string entityName, Dictionary<string, string> criteria, IList<string> columns, int count)
         {
             var collection = new EntityCollection();
-            var columnsList = FormatColumns(columns);
-            var criteriaText = FormatCriteria(criteria);
+            var columnsList = FormatColumns(columns, entityName);
+            var criteriaText = string.Empty;
+
+            if (criteria.Count > 0)
+                criteriaText = $"WHERE {FormatCriteria(criteria)}";
 
             using (var connection = new SqlConnection(m_connection))
             {
-                using (var cmd = new SqlCommand($"SELECT TOP {count} {columnsList} FROM {Map(entityName)} WITH (NOLOCK) WHERE {criteriaText}"))
+                using (var cmd = new SqlCommand($"SELECT TOP {count} {columnsList} FROM {Map(entityName)} WITH (NOLOCK) {criteriaText}"))
                 {
                     cmd.Connection = connection;
                     await cmd.Connection.OpenAsync();
@@ -57,9 +60,47 @@ namespace D365.Saturday.DataProvider.Data
             return collection;
         }
 
-        private string FormatColumns(IList<string> cols)
+        public async Task<Entity> GetById(string entity, Guid id)
+        {
+            Entity result = null;
+            var table = Map(entity);
+
+            using (var connection = new SqlConnection(m_connection))
+            {
+                using (var cmd = new SqlCommand($"SELECT TOP 1 * FROM {table} WITH (NOLOCK) WHERE [WideWorldImportersId] = '{id.ToString()}'"))
+                {
+                    cmd.Connection = connection;
+                    await cmd.Connection.OpenAsync();
+
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (reader.Read())
+                    {
+                        result = new Entity(entity);
+
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            var value = reader.IsDBNull(i) ? null : reader[i];
+
+                            if (value == null)
+                                continue;
+
+                            var fieldName = reader.GetName(i);
+                            var crmAttribute = $"{m_publisher}_{fieldName.ToLower()}";
+                            result[crmAttribute] = value;
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private string FormatColumns(IList<string> cols, string entity)
         {
             var sqlColumns = new List<string>();
+
+            // Primary Key
+            sqlColumns.Add($"{entity.Replace($"{m_publisher}_", string.Empty)}id");
 
             foreach (var item in cols)
             {
@@ -95,8 +136,8 @@ namespace D365.Saturday.DataProvider.Data
 
             switch (entityName)
             {
-                case "sat_account":
-                    result = "Application.People";
+                case "sat_wideworldimporters":
+                    result = "Application.Demo";
                     break;
                 default:
                     throw new Exception("Unknown entity");
